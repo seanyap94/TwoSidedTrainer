@@ -316,7 +316,9 @@
 										>
 											<div class="mb-2 flex items-center gap-2">
 												<RadioDot selected={settings.drillType === 'lsll'} />
-												<span class="font-medium text-gray-900 dark:text-white">Full LSLL Drill</span>
+												<span class="font-medium text-gray-900 dark:text-white"
+													>Full LSLL Drill</span
+												>
 											</div>
 											<p class="ml-6 text-xs text-gray-500 dark:text-gray-400">
 												Random F2L + OLL + PLL combinations with rotations and AUF.

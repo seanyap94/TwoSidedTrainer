@@ -71,7 +71,9 @@
 	);
 
 	// For PLL and OLL, always use full cube stickering
-	const crossColor = $derived(groupId === 'pll' || groupId === 'oll' ? 'white' : resolvedCrossColor);
+	const crossColor = $derived(
+		groupId === 'pll' || groupId === 'oll' ? 'white' : resolvedCrossColor
+	);
 	const frontColor = $derived(groupId === 'pll' || groupId === 'oll' ? 'red' : resolvedFrontColor);
 	const stickering = $derived(groupId === 'pll' || groupId === 'oll' ? 'fully' : 'f2l');
 

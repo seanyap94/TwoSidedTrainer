@@ -140,7 +140,9 @@ export function getCaseAlg(
 	const algorithmPool = staticData.algPool;
 
 	if (!algorithmPool) {
-		console.error(`getCaseAlg: algorithmPool is undefined for group=${staticData.groupId}, case=${staticData.caseId}`);
+		console.error(
+			`getCaseAlg: algorithmPool is undefined for group=${staticData.groupId}, case=${staticData.caseId}`
+		);
 		return '';
 	}
 
@@ -172,7 +174,10 @@ export function getCaseScramble(staticData: CaseStatic, side: Side, scrambleSele
 	let scramble: string;
 
 	// For PLL and OLL cases, if no scrambles are provided, use the inverse of the algorithm
-	if ((staticData.scramblePool?.length ?? 0) === 0 && (staticData.groupId === 'pll' || staticData.groupId === 'oll')) {
+	if (
+		(staticData.scramblePool?.length ?? 0) === 0 &&
+		(staticData.groupId === 'pll' || staticData.groupId === 'oll')
+	) {
 		// Get the algorithm that would be used for this case
 		const algorithmSelection = { left: 0, right: 0 }; // Default to first algorithm
 		const customAlgorithm = { left: '', right: '' };
@@ -181,7 +186,11 @@ export function getCaseScramble(staticData: CaseStatic, side: Side, scrambleSele
 	} else {
 		const scramblePool = staticData.scramblePool ?? [];
 
-		if (scrambleSelection !== undefined && scrambleSelection >= 0 && scrambleSelection < scramblePool.length) {
+		if (
+			scrambleSelection !== undefined &&
+			scrambleSelection >= 0 &&
+			scrambleSelection < scramblePool.length
+		) {
 			scramble = scramblePool[scrambleSelection];
 		} else {
 			scramble = scramblePool[0] || '';
@@ -198,7 +207,10 @@ export function getCaseScramblePool(staticData: CaseStatic) {
 	}
 
 	// For PLL and OLL cases, if no scrambles are provided, return a pool with the inverse algorithm
-	if ((staticData.scramblePool?.length ?? 0) === 0 && (staticData.groupId === 'pll' || staticData.groupId === 'oll')) {
+	if (
+		(staticData.scramblePool?.length ?? 0) === 0 &&
+		(staticData.groupId === 'pll' || staticData.groupId === 'oll')
+	) {
 		const algorithmSelection = { left: 0, right: 0 }; // Default to first algorithm
 		const customAlgorithm = { left: '', right: '' };
 		const alg = getCaseAlg(staticData, algorithmSelection, customAlgorithm, 'right'); // Use right side as base

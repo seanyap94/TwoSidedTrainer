@@ -275,17 +275,15 @@
 										{getGroupDisplayName(unsolvedCase.groupId)}
 										#{getCaseName(casesStatic[unsolvedCase.groupId][unsolvedCase.caseId])}
 									</span>
+								{:else if item.solve!.groupId === 'lsll'}
+									<span class="font-medium text-gray-900 dark:text-white">
+										LSLL #{item.solve!.caseId}
+									</span>
 								{:else}
-									{#if item.solve!.groupId === 'lsll'}
-										<span class="font-medium text-gray-900 dark:text-white">
-											LSLL #{item.solve!.caseId}
-										</span>
-									{:else}
-										<span class="font-medium text-gray-900 dark:text-white">
-											{getGroupDisplayName(item.solve!.groupId)}
-											#{getCaseName(casesStatic[item.solve!.groupId][item.solve!.caseId])}
-										</span>
-									{/if}
+									<span class="font-medium text-gray-900 dark:text-white">
+										{getGroupDisplayName(item.solve!.groupId)}
+										#{getCaseName(casesStatic[item.solve!.groupId][item.solve!.caseId])}
+									</span>
 								{/if}
 							</div>
 							<div class="flex shrink-0 items-center gap-4">

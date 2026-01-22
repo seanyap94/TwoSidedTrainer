@@ -760,8 +760,10 @@
 				crossColor={currentTrainCase.crossColor}
 				frontColor={currentTrainCase.frontColor}
 				scrambleSelection={currentTrainCase.scramble}
-				stickering={currentTrainCase.groupId === 'pll' || currentTrainCase.groupId === 'oll' ? 'fully' : (sessionState.activeSession?.settings.trainHintStickering ??
-					DEFAULT_SETTINGS.trainHintStickering)}
+				stickering={currentTrainCase.groupId === 'pll' || currentTrainCase.groupId === 'oll'
+					? 'fully'
+					: (sessionState.activeSession?.settings.trainHintStickering ??
+						DEFAULT_SETTINGS.trainHintStickering)}
 				backView={sessionState.activeSession?.settings.backView || 'none'}
 				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 				experimentalDragInput="auto"

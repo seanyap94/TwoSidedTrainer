@@ -13,12 +13,12 @@ export function inverseAlg(alg: string): string {
 	const moves = alg.trim().split(/\s+/);
 
 	// Reverse the order and invert each move
-	const invertedMoves = moves.reverse().map(move => {
+	const invertedMoves = moves.reverse().map((move) => {
 		// Handle wide moves and regular moves
 		if (move.endsWith("'")) {
 			// Remove the prime
 			return move.slice(0, -1);
-		} else if (move.endsWith("2")) {
+		} else if (move.endsWith('2')) {
 			// Double moves stay the same
 			return move;
 		} else {
