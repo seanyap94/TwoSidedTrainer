@@ -333,19 +333,20 @@
 
 				// Re-apply stickering if needed
 				if (stickeringString) {
-					player.experimentalStickeringMaskOrbits = stickeringString;
+					player.experimentalStickeringMaskOrbits = 'oll';
 				}
 
-				if (enableF2LCheck && kpuzzle && staticData) {
+				if (enableF2LCheck && kpuzzle && (staticData || !groupId)) {
 					// Use raw moves directly for F2L checking - they're already in absolute frame
 					await checkF2LState(
 						{ kpuzzle },
 						scramble,
 						rawMovesAdded,
-						staticData.pieceToHide,
+						staticData?.pieceToHide,
 						side,
+						groupId || 'pll', // Use 'pll' for LSLL to check for full solve
 						onF2LSolved,
-						onCubeSolved
+						undefined // Not using onCubeSolved anymore
 					);
 				}
 			}

@@ -3,10 +3,14 @@ import { advancedAlgorithms } from './algorithms/advanced_algorithms';
 import { basicAlgorithms } from './algorithms/basic_algorithms';
 import { basicAlgorithmsBack } from './algorithms/basic_algorithms_back';
 import { expertAlgorithms } from './algorithms/expert_algorithms';
+import { ollAlgorithms } from './algorithms/oll_algorithms';
+import { pllAlgorithms } from './algorithms/pll_algorithms';
 import { advancedScrambles } from './scrambles/advanced_scrambles';
 import { basicScrambles } from './scrambles/basic_scrambles';
 import { basicScramblesBack } from './scrambles/basic_scrambles_back';
 import { expertScrambles } from './scrambles/expert_scrambles';
+import { ollScrambles } from './scrambles/oll_scrambles';
+import { pllScrambles } from './scrambles/pll_scrambles';
 
 // export { basicAlgorithms } from "./algorithms/basic_algorithms";
 // export { basicAlgorithmsBack } from "./algorithms/basic_algorithms_back";
@@ -24,12 +28,18 @@ export const GROUP_SCRAMBLES: Record<GroupId, AlgorithmCollection> = {
 	basic: basicScrambles,
 	basicBack: basicScramblesBack,
 	advanced: advancedScrambles,
-	expert: expertScrambles
+	expert: expertScrambles,
+	pll: pllScrambles,
+	oll: ollScrambles,
+	lsll: {}
 };
 
 export const GROUP_ALGORITHMS: Record<GroupId, AlgorithmCollection> = {
 	basic: basicAlgorithms,
 	basicBack: basicAlgorithmsBack,
 	advanced: advancedAlgorithms,
-	expert: expertAlgorithms
+	expert: expertAlgorithms,
+	pll: pllAlgorithms,
+	oll: ollAlgorithms,
+	lsll: {}
 };

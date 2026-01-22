@@ -6,6 +6,7 @@ import type { HintAlgorithm, HintStickering } from './globalState';
 export type CaseMode = 'group' | 'individual';
 export type FrequencyMode = 'smart' | 'recap';
 export type TrainMode = 'classic' | 'drill';
+export type DrillType = 'speed' | 'lsll';
 
 // Settings for a training session
 export interface SessionSettings {
@@ -41,6 +42,7 @@ export interface SessionSettings {
 	smartCubeEnabled: boolean;
 
 	// Drill Mode
+	drillType: DrillType;
 	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 	drillHideTwistyPlayer: boolean; // Hide TwistyPlayer after first move in drill mode
 }

@@ -12,7 +12,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 		GROUP_IDS.map((id) => [id, GROUP_DEFINITIONS[id].categories.map(() => true)])
 	) as any,
 	trainStateSelection: { unlearned: false, learning: true, finished: false },
-	trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true },
+	trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true, pll: true, oll: true, lsll: false },
 	trainSideSelection: { left: true, right: true },
 	selectedCases: {},
 	frequencyMode: 'smart',
@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	crossColor: ['white'],
 	frontColor: ['red'],
 	smartCubeEnabled: false,
+	drillType: 'speed',
 	drillTimeBetweenCases: 1.0,
 	drillHideTwistyPlayer: false
 };

@@ -37,8 +37,23 @@
 
 	let side = $state<Side>('right');
 
-	const staticData = casesStatic[groupId][caseId];
-	const caseState = casesState[groupId][caseId];
+	const staticData = casesStatic[groupId]?.[caseId] ?? {
+		groupId,
+		caseId,
+		algPool: [],
+		scramblePool: [],
+		categoryName: undefined,
+		categoryIndex: undefined,
+		groupName: 'Unknown',
+		ignoreAUF: false,
+		pieceToHide: undefined,
+		caseName: undefined
+	};
+	const caseState = casesState[groupId]?.[caseId] ?? {
+		trainState: 'unlearned',
+		algorithmSelection: { left: 0, right: 0 },
+		customAlgorithm: { left: '', right: '' }
+	};
 
 	const safeCrossColor = $derived(
 		Array.isArray(sessionState.activeSession?.settings.crossColor)
@@ -51,9 +66,14 @@
 			: DEFAULT_SETTINGS.frontColor || ['red']
 	);
 
-	const [crossColor, frontColor] = $derived(
+	const [resolvedCrossColor, resolvedFrontColor] = $derived(
 		resolveStickerColors(safeCrossColor as any, safeFrontColor as any)
 	);
+
+	// For PLL and OLL, always use full cube stickering
+	const crossColor = $derived(groupId === 'pll' || groupId === 'oll' ? 'white' : resolvedCrossColor);
+	const frontColor = $derived(groupId === 'pll' || groupId === 'oll' ? 'red' : resolvedFrontColor);
+	const stickering = $derived(groupId === 'pll' || groupId === 'oll' ? 'fully' : 'f2l');
 
 	const caseSolves = $derived(getSolvesForCase(statisticsState.allSolves, groupId, caseId));
 	const solveCount = $derived(caseSolves.length);
@@ -133,6 +153,7 @@
 			{side}
 			{crossColor}
 			{frontColor}
+			{stickering}
 			controlPanel="none"
 			class="size-full"
 		/>

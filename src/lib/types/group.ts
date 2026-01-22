@@ -1,8 +1,8 @@
 import type { CaseState } from './caseState';
 import type { StickerHidden } from './stickering';
 
-export type GroupId = 'basic' | 'basicBack' | 'advanced' | 'expert';
-export const GROUP_IDS: readonly GroupId[] = ['basic', 'basicBack', 'advanced', 'expert'];
+export type GroupId = 'basic' | 'basicBack' | 'advanced' | 'expert' | 'pll' | 'oll' | 'lsll';
+export const GROUP_IDS: readonly GroupId[] = ['basic', 'basicBack', 'advanced', 'expert', 'pll', 'oll', 'lsll'];
 
 export type CaseId = number; // 1-based, matches existing assets
 
@@ -212,11 +212,73 @@ const EXPERT_DEFINITION: GroupDefinition = {
 	ignoreAUF: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 } as const;
 
+const PLL_DEFINITION: GroupDefinition = {
+	id: 'pll',
+	name: 'PLL Cases',
+	editName: 'PLL',
+	numberCases: 21,
+	categories: [
+		{ name: 'Edges Only', cases: [16, 17, 18, 19] }, // H, Ua, Ub, Z 
+		{ name: 'Adjacent Swap', cases: [5, 6, 7, 8, 9, 10, 11, 14] }, // Aa, Ab, Ga, Gb, Gc, Gd, Ja, Jb, F, T
+		{ name: 'Diagonal Swap', cases: [3, 12, 13, 20, 21, 15] } // E, Na, Nb, V, Y
+	],
+	caseNumberMapping: {
+		1: 'Aa',
+		2: 'Ab',
+		3: 'E',
+		4: 'Ra',
+		5: 'Ga',
+		6: 'Gb',
+		7: 'Gc',
+		8: 'Gd',
+		9: 'Ja',
+		10: 'Jb',
+		11: 'F',
+		12: 'Na',
+		13: 'Nb',
+		14: 'T',
+		15: 'V',
+		16: 'H',
+		17: 'Ua',
+		18: 'Ub',
+		19: 'Z',
+		20: 'Y',
+		21: 'Rb'
+	},
+	ignoreAUF: Array.from({ length: 21 }, (_, i) => i + 1) // All PLL cases ignore AUF
+} as const;
+
+const OLL_DEFINITION: GroupDefinition = {
+	id: 'oll',
+	name: 'OLL Cases',
+	editName: 'OLL',
+	numberCases: 57,
+	categories: [
+		{ name: 'Dot OLLs', cases: [1, 2, 3, 4, 5, 6, 7] },
+		{ name: 'Line OLLs', cases: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21] },
+		{ name: 'L OLLs', cases: [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41] },
+		{ name: 'C OLLs', cases: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57] }
+	],
+	ignoreAUF: Array.from({ length: 57 }, (_, i) => i + 1) // All OLL cases ignore AUF
+} as const;
+
+const LSLL_DEFINITION: GroupDefinition = {
+	id: 'lsll',
+	name: 'Full LSLL',
+	editName: 'Full LSLL',
+	numberCases: 1,
+	categories: [{ name: 'LSLL Cases', cases: [1] }],
+	ignoreAUF: [1]
+} as const;
+
 export const GROUP_DEFINITIONS: Record<GroupId, GroupDefinition> = {
 	basic: BASIC_DEFINITION,
 	basicBack: BASIC_BACK_DEFINITION,
 	advanced: ADVANCED_DEFINITION,
-	expert: EXPERT_DEFINITION
+	expert: EXPERT_DEFINITION,
+	pll: PLL_DEFINITION,
+	oll: OLL_DEFINITION,
+	lsll: LSLL_DEFINITION
 } as const;
 
 // export const createGroupState = (group: GroupId, definition: GroupDefinition = GROUP_DEFINITIONS[group]): GroupState => {

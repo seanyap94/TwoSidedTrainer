@@ -26,6 +26,10 @@
 	const staticData = casesStatic[groupId][caseId];
 	const side = 'right'; // Always use right side for simplicity
 
+	// For PLL and OLL, always use full cube stickering
+	const effectiveCrossColor = groupId === 'pll' || groupId === 'oll' ? 'white' : crossColor;
+	const effectiveFrontColor = groupId === 'pll' || groupId === 'oll' ? 'red' : frontColor;
+
 	let isSelected = $derived(selected ?? false);
 
 	function toggleSelection() {
@@ -56,8 +60,8 @@
 			{caseId}
 			algorithmSelection={undefined}
 			{side}
-			{crossColor}
-			{frontColor}
+			crossColor={effectiveCrossColor}
+			frontColor={effectiveFrontColor}
 			controlPanel="none"
 			class="size-full"
 		/>

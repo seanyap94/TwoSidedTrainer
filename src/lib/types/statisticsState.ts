@@ -20,7 +20,7 @@ export type Solve = {
 	trainMode: TrainMode;
 };
 
-export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
+export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e' | 'p' | 'o' | 'l';
 export type CompressedSide = 'l' | 'r';
 export type CompressedAuf = 0 | 1 | 2 | 3; // '' -> 0, 'U' -> 1, 'U2' -> 2, "U'" -> 3
 

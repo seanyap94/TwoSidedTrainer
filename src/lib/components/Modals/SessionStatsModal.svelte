@@ -47,7 +47,10 @@
 		basic: 0,
 		basicBack: 1,
 		advanced: 2,
-		expert: 3
+		expert: 3,
+		pll: 4,
+		oll: 5,
+		lsll: 6
 	};
 
 	function toggleSort(column: SortColumn) {
@@ -267,7 +270,13 @@
 		const breakdown: CaseBreakdown[] = [];
 		for (const [_, data] of caseMap) {
 			const caseData = casesStatic[data.groupId]?.[data.caseId];
-			const caseName = caseData ? getCaseName(caseData) : String(data.caseId);
+			let caseName: string;
+			if (data.groupId === 'lsll') {
+				// For LSLL, use the sequential case ID directly
+				caseName = String(data.caseId);
+			} else {
+				caseName = caseData ? getCaseName(caseData) : String(data.caseId);
+			}
 			const groupName = GROUP_DEFINITIONS[data.groupId]?.editName ?? data.groupId;
 
 			breakdown.push({

@@ -63,7 +63,7 @@
 
 <ResponsiveLayout {sessionToolbar}>
 	{#snippet leftContent()}
-		{#if getNumberOfSelectedCases() > 0}
+		{#if getNumberOfSelectedCases() > 0 || (activeSettings?.trainMode === 'drill' && activeSettings?.drillType === 'lsll')}
 			{#if activeSettings}
 				{#if activeSettings.trainMode === 'drill'}
 					{#if activeSettings.smartCubeEnabled}

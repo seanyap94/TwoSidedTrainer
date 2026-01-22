@@ -17,14 +17,20 @@ const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
 	basic: 'b',
 	basicBack: 'bb',
 	advanced: 'a',
-	expert: 'e'
+	expert: 'e',
+	pll: 'p',
+	oll: 'o',
+	lsll: 'l'
 };
 
 const REVERSE_GROUP_ID_MAP: Record<CompressedGroupId, GroupId> = {
 	b: 'basic',
 	bb: 'basicBack',
 	a: 'advanced',
-	e: 'expert'
+	e: 'expert',
+	p: 'pll',
+	o: 'oll',
+	l: 'lsll'
 };
 
 const SIDE_MAP: Record<Side, CompressedSide> = {

@@ -13,7 +13,7 @@ const F2L_SLOTS = {
 /**
  * Mirrors a slot position when switching from right to left side
  */
-function mirrorSlot(slot: NonNullable<StickerHidden>): NonNullable<StickerHidden> {
+export function mirrorSlot(slot: NonNullable<StickerHidden>): NonNullable<StickerHidden> {
 	const mirrorMap: Record<NonNullable<StickerHidden>, NonNullable<StickerHidden>> = {
 		fr: 'fl',
 		fl: 'fr',

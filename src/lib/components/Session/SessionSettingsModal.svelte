@@ -285,6 +285,47 @@
 							</div>
 							{#if settings.trainMode === 'drill'}
 								<div class="card">
+									<Label class="section-label">Drill Type</Label>
+									<div class="mt-3 grid grid-cols-1 gap-3">
+										<!-- Speed Drill Card -->
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
+											class="selectable-card flex h-full flex-col {settings.drillType === 'speed'
+												? 'selectable-card-active'
+												: 'selectable-card-inactive'}"
+											onclick={() => (settings.drillType = 'speed')}
+										>
+											<div class="mb-2 flex items-center gap-2">
+												<RadioDot selected={settings.drillType === 'speed'} />
+												<span class="font-medium text-gray-900 dark:text-white">Speed Drill</span>
+											</div>
+											<p class="ml-6 text-xs text-gray-500 dark:text-gray-400">
+												Practice selected training cases with automatic transitions.
+											</p>
+										</div>
+
+										<!-- Full LSLL Drill Card -->
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
+											class="selectable-card flex h-full flex-col {settings.drillType === 'lsll'
+												? 'selectable-card-active'
+												: 'selectable-card-inactive'}"
+											onclick={() => (settings.drillType = 'lsll')}
+										>
+											<div class="mb-2 flex items-center gap-2">
+												<RadioDot selected={settings.drillType === 'lsll'} />
+												<span class="font-medium text-gray-900 dark:text-white">Full LSLL Drill</span>
+											</div>
+											<p class="ml-6 text-xs text-gray-500 dark:text-gray-400">
+												Random F2L + OLL + PLL combinations with rotations and AUF.
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<div class="card">
 									<div class="mb-4 flex items-center justify-between">
 										<Label class="section-label">Drill Flow</Label>
 										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"

@@ -15,6 +15,8 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { globalState } from '$lib/globalState.svelte';
+	import { GROUP_SCRAMBLES } from '$lib/data';
+	import { AUF, type Auf } from '$lib/types/trainCase';
 
 	// Reset drill when session changes
 	import { untrack } from 'svelte';
@@ -28,6 +30,20 @@
 			drillPhase = 'stopped';
 			drillTimerRef?.reset();
 			alg = '';
+			lsllCaseNumber = 0;
+		});
+	});
+
+	// Reset drill when drill type changes
+	$effect(() => {
+		// Track drill type changes
+		const _ = drillType;
+		untrack(() => {
+			// Reset to stopped state
+			drillPhase = 'stopped';
+			drillTimerRef?.reset();
+			alg = '';
+			lsllCaseNumber = 0;
 		});
 	});
 	import {
@@ -83,6 +99,12 @@
 	// Algorithm for display when user gives up (calculated with AUF)
 	let displayAlg = $state('');
 
+	// LSLL drill state
+	let lsllScramble = $state('');
+	let lsllAuf = $state<Auf>('');
+	let lsllRotation = $state('');
+	let lsllCaseNumber = $state(0);
+
 	// Drill phase state - starts stopped
 	let drillPhase = $state<DrillPhase>('stopped');
 
@@ -97,6 +119,12 @@
 
 	// Derived: is drill running (TwistyPlayer visible)
 	let isDrillRunning = $derived(drillPhase !== 'stopped');
+
+	// Derived: current drill type
+	let drillType = $derived(sessionState.activeSession?.settings.drillType ?? 'speed');
+
+	// Derived: is LSLL drill
+	let isLsllDrill = $derived(drillType === 'lsll');
 
 	// Derived: latest saved cube for smart connect
 	let latestSavedCube = $derived.by(() => {
@@ -163,8 +191,9 @@
 	// Subscribe to move events when drill is running
 	$effect(() => {
 		const hasTrainCase = !!trainState.current;
+		const shouldSubscribe = (hasTrainCase || isLsllDrill) && isDrillRunning;
 
-		if (hasTrainCase && isDrillRunning) {
+		if (shouldSubscribe) {
 			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleSmartCubeMove, SUBSCRIBER_PRIORITY);
 		} else {
 			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
@@ -187,7 +216,10 @@
 
 	// Calculate the display algorithm with AUF (for showing when user gives up)
 	$effect(() => {
-		if (currentTrainCase) {
+		if (isLsllDrill) {
+			// For LSLL drills, show the scramble since there's no specific algorithm
+			displayAlg = lsllScramble || '';
+		} else if (currentTrainCase) {
 			const { groupId, caseId, auf, side, scramble: scrambleSelection } = currentTrainCase;
 			const staticData = casesStatic[groupId]?.[caseId];
 
@@ -217,6 +249,68 @@
 		}
 	});
 
+	/**
+	 * Generate a random LSLL scramble combining F2L + OLL + PLL
+	 */
+	function generateLsllScramble(): { scramble: string; auf: Auf; rotation: string } {
+		// Get random scrambles from each group
+		const f2lScrambles = GROUP_SCRAMBLES.basic;
+		const ollScrambles = GROUP_SCRAMBLES.oll;
+		const pllScrambles = GROUP_SCRAMBLES.pll;
+
+		// Select random cases
+		const f2lKeys = Object.keys(f2lScrambles);
+		const ollKeys = Object.keys(ollScrambles);
+		const pllKeys = Object.keys(pllScrambles);
+
+		const f2lKey = f2lKeys[Math.floor(Math.random() * f2lKeys.length)];
+		const ollKey = ollKeys[Math.floor(Math.random() * ollKeys.length)];
+		const pllKey = pllKeys[Math.floor(Math.random() * pllKeys.length)];
+
+		const f2lScramble =
+			f2lScrambles[parseInt(f2lKey)][
+				Math.floor(Math.random() * f2lScrambles[parseInt(f2lKey)].length)
+			];
+		const ollScramble =
+			ollScrambles[parseInt(ollKey)][
+				Math.floor(Math.random() * ollScrambles[parseInt(ollKey)].length)
+			];
+		const pllScramble =
+			pllScrambles[parseInt(pllKey)][
+				Math.floor(Math.random() * pllScrambles[parseInt(pllKey)].length)
+			];
+
+		// Combine scrambles
+		let combinedScramble = [f2lScramble, ollScramble, pllScramble]
+			.filter((s) => s.trim())
+			.join(' ');
+
+		// Apply random rotation (from the rotation map)
+		const rotations = ['y', "y'", 'y2'];
+		const randomRotation = rotations[Math.floor(Math.random() * rotations.length)];
+
+		// Apply random AUF
+		const randomAuf = AUF[Math.floor(Math.random() * AUF.length)];
+		if (randomAuf) {
+			combinedScramble = combinedScramble + ' ' + randomAuf;
+		}
+
+		console.log('%c[LSLL Scramble]', 'color: #9c27b0; font-weight: bold', {
+			f2l: f2lScramble,
+			oll: ollScramble,
+			pll: pllScramble,
+			rotation: randomRotation,
+			auf: randomAuf,
+			final: combinedScramble
+		});
+
+		return {
+			scramble: combinedScramble,
+			auf: randomAuf,
+			rotation: randomRotation || ''
+		};
+	}
+
 	function markAsSolved(force: boolean = false) {
 		if (currentTrainCase) {
 			if (force || !currentTrainCase.solved) {
@@ -229,11 +323,28 @@
 	 * Record the solve with split times
 	 */
 	function recordSolveTime(recognitionTime: number, executionTime: number) {
-		if (currentTrainCase) {
-			const { groupId, caseId } = currentTrainCase;
-			const totalTime = recognitionTime + executionTime;
+		const totalTime = recognitionTime + executionTime;
+		const solveId = crypto.randomUUID();
 
-			const solveId = crypto.randomUUID();
+		if (isLsllDrill) {
+			// Record LSLL solve - use the case number assigned when scramble was generated
+			trainState.lastDisplayedTime = totalTime;
+
+			statisticsState.addSolve({
+				id: solveId,
+				groupId: 'lsll',
+				caseId: lsllCaseNumber,
+				time: totalTime,
+				timestamp: Date.now(),
+				auf: lsllAuf,
+				side: 'right',
+				scrambleSelection: 0,
+				recognitionTime,
+				executionTime,
+				trainMode: 'drill'
+			});
+		} else if (currentTrainCase) {
+			const { groupId, caseId } = currentTrainCase;
 			currentTrainCase.time = totalTime;
 			currentTrainCase.solveId = solveId;
 			trainState.lastDisplayedTime = totalTime;
@@ -287,7 +398,18 @@
 			countdownNumber = 3;
 		}
 
-		advanceToNextTrainCase();
+		if (isLsllDrill) {
+			// Generate new LSLL scramble
+			lsllCaseNumber++;
+			const lsllData = generateLsllScramble();
+			lsllScramble = lsllData.scramble;
+			lsllAuf = lsllData.auf;
+			lsllRotation = lsllData.rotation;
+			scramble = lsllScramble;
+		} else {
+			// Advance to next training case
+			advanceToNextTrainCase();
+		}
 
 		// Reset state for new case
 		resetCaseState();
@@ -337,6 +459,16 @@
 		if (!bluetoothState.isConnected) return;
 
 		resetCaseState();
+
+		// Generate LSLL scramble if in LSLL mode
+		if (isLsllDrill) {
+			lsllCaseNumber++;
+			const lsllData = generateLsllScramble();
+			lsllScramble = lsllData.scramble;
+			lsllAuf = lsllData.auf;
+			lsllRotation = lsllData.rotation;
+			scramble = lsllScramble;
+		}
 
 		// Countdown: 3, 2, 1
 		drillPhase = 'countdown';
@@ -483,21 +615,26 @@
 			</div>
 		{/if}
 
-		{#if currentTrainCase}
+		{#if currentTrainCase || isLsllDrill}
 			<TwistyPlayer
 				bind:this={twistyPlayerRef}
 				bind:scramble
 				bind:movesAdded={alg}
-				groupId={currentTrainCase.groupId}
-				caseId={currentTrainCase.caseId}
-				algorithmSelection={currentAlgorithmSelection}
-				auf={currentTrainCase.auf}
-				side={currentTrainCase.side}
-				crossColor={currentTrainCase.crossColor}
-				frontColor={currentTrainCase.frontColor}
-				scrambleSelection={currentTrainCase.scramble}
-				stickering={sessionState.activeSession?.settings.trainHintStickering ??
-					DEFAULT_SETTINGS.trainHintStickering}
+				groupId={isLsllDrill ? undefined : currentTrainCase!.groupId}
+				caseId={isLsllDrill ? undefined : currentTrainCase!.caseId}
+				algorithmSelection={isLsllDrill ? { left: 0, right: 0 } : currentAlgorithmSelection}
+				auf={isLsllDrill ? lsllAuf : currentTrainCase!.auf}
+				side={isLsllDrill ? 'right' : currentTrainCase!.side}
+				crossColor={isLsllDrill ? 'white' : currentTrainCase!.crossColor}
+				frontColor={isLsllDrill ? 'red' : currentTrainCase!.frontColor}
+				scrambleSelection={isLsllDrill ? 0 : currentTrainCase!.scramble}
+				stickering={isLsllDrill
+					? 'fully'
+					: currentTrainCase!.groupId === 'pll' || currentTrainCase!.groupId === 'oll'
+						? 'fully'
+						: (sessionState.activeSession?.settings.trainHintStickering ??
+							DEFAULT_SETTINGS.trainHintStickering)}
+				disableAutoRotation={true}
 				backView={sessionState.activeSession?.settings.backView || 'none'}
 				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 				experimentalDragInput="auto"

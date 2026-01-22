@@ -14,6 +14,8 @@ import shuffleArray from './utils/shuffleArray';
 import { statisticsState } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
 import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
+import ollAlgorithms from './data/algorithms/oll_algorithms';
+import pllAlgorithms from './data/algorithms/pll_algorithms';
 
 export function gernerateTrainCases(): TrainCase[] {
 	// console.log('gernerateTrainCases() called');
@@ -355,3 +357,51 @@ export default class TrainCase {
 		this.#solveId = value;
 	}
 }
+
+// --- Algorithm helpers (OLL / PLL) ---------------------------------
+
+export type AlgorithmCase = {
+	key: string;
+	alg: string;
+	name?: string;
+};
+
+export function getOLLAlgorithms(): Record<number, string[]> {
+	return ollAlgorithms as any;
+}
+
+export function getPLLAlgorithms(): Record<string, string[]> {
+	return pllAlgorithms as any;
+}
+
+// Generate a simple algorithm queue. type = 'OLL' | 'PLL'.
+export function generateAlgorithmQueue(
+	type: 'OLL' | 'PLL',
+	selectedKeys?: string[] // for OLL use stringified numbers ("1","2"...) or for PLL the names
+): AlgorithmCase[] {
+	const result: AlgorithmCase[] = [];
+	if (type === 'OLL') {
+		const pool = getOLLAlgorithms();
+		for (const k of Object.keys(pool)) {
+			if (selectedKeys && selectedKeys.length > 0 && !selectedKeys.includes(k)) continue;
+			const algList = pool[Number(k)];
+			if (!algList || algList.length === 0) continue;
+			result.push({ key: k, alg: algList[0], name: `OLL ${k}` });
+		}
+	} else {
+		const pool = getPLLAlgorithms();
+		for (const k of Object.keys(pool)) {
+			if (selectedKeys && selectedKeys.length > 0 && !selectedKeys.includes(k)) continue;
+			const algList = pool[k];
+			if (!algList || algList.length === 0) continue;
+			result.push({ key: k, alg: algList[0], name: k });
+		}
+	}
+	// shuffle
+	for (let i = result.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[result[i], result[j]] = [result[j], result[i]];
+	}
+	return result;
+}
+

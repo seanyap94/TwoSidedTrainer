@@ -10,6 +10,7 @@ import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
 import type { CaseStatic } from './types/casesStatic';
 import type { Side } from '$lib/types/Side';
 import { mirrorAlg } from './utils/mirrorAlg';
+import { inverseAlg } from './utils/inverseAlg';
 
 export const createCaseState = (): CaseState => ({
 	trainState: 'unlearned',
@@ -126,12 +127,22 @@ export function getCaseAlg(
 	customAlgorithm: CustomAlgorithm,
 	side: Side
 ): string {
+	if (!staticData) {
+		console.error('getCaseAlg called with undefined staticData');
+		return '';
+	}
+
 	const algorithmSelectionSide = algorithmSelection[side];
 	const customAlgorithmSide = customAlgorithm[side];
 
 	if (algorithmSelectionSide === null) return customAlgorithmSide;
 
 	const algorithmPool = staticData.algPool;
+
+	if (!algorithmPool) {
+		console.error(`getCaseAlg: algorithmPool is undefined for group=${staticData.groupId}, case=${staticData.caseId}`);
+		return '';
+	}
 
 	let alg: string | undefined = undefined;
 	if (
@@ -146,28 +157,56 @@ export function getCaseAlg(
 			`Algorithm index out of bounds or missing: group/case=${staticData.caseId}, side=${side}, selection=${algorithmSelectionSide}, pool=`,
 			algorithmPool
 		);
-		alg = algorithmPool[0] || '';
+		alg = algorithmPool?.[0] || '';
 	}
 
 	return side === 'left' ? mirrorAlg(alg) : alg;
 }
 
 export function getCaseScramble(staticData: CaseStatic, side: Side, scrambleSelection?: number) {
-	const scramblePool = staticData.scramblePool;
+	if (!staticData) {
+		console.error('getCaseScramble called with undefined staticData');
+		return '';
+	}
 
 	let scramble: string;
 
-	if (scrambleSelection !== undefined) {
-		scramble = scramblePool[scrambleSelection];
+	// For PLL and OLL cases, if no scrambles are provided, use the inverse of the algorithm
+	if ((staticData.scramblePool?.length ?? 0) === 0 && (staticData.groupId === 'pll' || staticData.groupId === 'oll')) {
+		// Get the algorithm that would be used for this case
+		const algorithmSelection = { left: 0, right: 0 }; // Default to first algorithm
+		const customAlgorithm = { left: '', right: '' };
+		const alg = getCaseAlg(staticData, algorithmSelection, customAlgorithm, side);
+		scramble = inverseAlg(alg);
 	} else {
-		scramble = scramblePool[0];
+		const scramblePool = staticData.scramblePool ?? [];
+
+		if (scrambleSelection !== undefined && scrambleSelection >= 0 && scrambleSelection < scramblePool.length) {
+			scramble = scramblePool[scrambleSelection];
+		} else {
+			scramble = scramblePool[0] || '';
+		}
 	}
 
 	return side === 'left' ? mirrorAlg(scramble) : scramble;
 }
 
 export function getCaseScramblePool(staticData: CaseStatic) {
-	return staticData.scramblePool;
+	if (!staticData) {
+		console.error('getCaseScramblePool called with undefined staticData');
+		return [];
+	}
+
+	// For PLL and OLL cases, if no scrambles are provided, return a pool with the inverse algorithm
+	if ((staticData.scramblePool?.length ?? 0) === 0 && (staticData.groupId === 'pll' || staticData.groupId === 'oll')) {
+		const algorithmSelection = { left: 0, right: 0 }; // Default to first algorithm
+		const customAlgorithm = { left: '', right: '' };
+		const alg = getCaseAlg(staticData, algorithmSelection, customAlgorithm, 'right'); // Use right side as base
+		const inverseScramble = inverseAlg(alg);
+		return [inverseScramble];
+	}
+
+	return staticData.scramblePool ?? [];
 }
 
 export function getCaseName(staticData: CaseStatic) {
